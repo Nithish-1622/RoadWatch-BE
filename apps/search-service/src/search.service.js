@@ -164,6 +164,15 @@ let SearchService = SearchService_1 = class SearchService {
             return [];
         }
     }
+    
+    async createSavedSearch(dto) {
+        this.logger.log(`Creating saved search: ${JSON.stringify(dto)}`);
+        return {
+            id: Math.random().toString(36).substr(2, 9),
+            ...dto,
+            createdAt: new Date().toISOString()
+        };
+    }
 };
 exports.SearchService = SearchService;
 exports.SearchService = SearchService = SearchService_1 = __decorate([

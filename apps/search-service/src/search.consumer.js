@@ -23,7 +23,7 @@ let SearchConsumer = SearchConsumer_1 = class SearchConsumer {
             clientId: 'roadwatch-search-sync-consumer',
             brokers,
         });
-        this.consumer = this.kafka.consumer({ groupId: 'search-sync-group' });
+        this.consumer = this.kafka.consumer({ groupId: 'search-sync-group-v2' });
     }
     async onModuleInit() {
         try {

@@ -17,32 +17,86 @@ const common_1 = require("@nestjs/common");
 const ai_gateway_service_1 = require("./ai-gateway.service");
 const common_2 = require("@app/common");
 const class_validator_1 = require("class-validator");
-class AnalyzePotholeDto {
+
+class PredictDto {
 }
 __decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
-], AnalyzePotholeDto.prototype, "complaintId", void 0);
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Object)
+], PredictDto.prototype, "payload", void 0);
+
+class UpdateModelDto {
+}
 __decorate([
-    (0, class_validator_1.IsUrl)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], AnalyzePotholeDto.prototype, "imageUrl", void 0);
+], UpdateModelDto.prototype, "version", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateModelDto.prototype, "status", void 0);
+
 let AIGatewayController = class AIGatewayController {
     constructor(aiGatewayService) {
         this.aiGatewayService = aiGatewayService;
     }
-    async analyze(dto) {
-        return this.aiGatewayService.analyzePothole(dto.complaintId, dto.imageUrl);
+
+    async getModelInfo() {
+        return this.aiGatewayService.getModelInfo();
+    }
+
+    async predict(body) {
+        // Validation check for empty body
+        if (Object.keys(body).length === 0) {
+            throw new common_1.BadRequestException('Empty body');
+        }
+        return this.aiGatewayService.predict(body);
+    }
+
+    async updateModel(id, dto) {
+        return this.aiGatewayService.updateModel(id, dto);
+    }
+
+    async deleteModel(id) {
+        return this.aiGatewayService.deleteModel(id);
     }
 };
 exports.AIGatewayController = AIGatewayController;
+
 __decorate([
-    (0, common_1.Post)('analyze-pothole'),
+    (0, common_1.Get)('model'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AIGatewayController.prototype, "getModelInfo", null);
+
+__decorate([
+    (0, common_1.Post)('predict'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [AnalyzePotholeDto]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], AIGatewayController.prototype, "analyze", null);
+], AIGatewayController.prototype, "predict", null);
+
+__decorate([
+    (0, common_1.Put)('model/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, UpdateModelDto]),
+    __metadata("design:returntype", Promise)
+], AIGatewayController.prototype, "updateModel", null);
+
+__decorate([
+    (0, common_1.Delete)('model/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], AIGatewayController.prototype, "deleteModel", null);
+
 exports.AIGatewayController = AIGatewayController = __decorate([
     (0, common_1.Controller)('api/v1/ai'),
     (0, common_1.UseFilters)(common_2.HttpExceptionFilter),

@@ -9,7 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const typeorm_1 = require("@nestjs/typeorm");
+const notification_entity_1 = require("./notification.entity");
+const notification_service_1 = require("./notification.service");
+const notification_controller_1 = require("./notification.controller");
 const notification_consumer_1 = require("./notification.consumer");
+
 let NotificationModule = class NotificationModule {
 };
 exports.NotificationModule = NotificationModule;
@@ -17,8 +22,24 @@ exports.NotificationModule = NotificationModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    type: 'postgres',
+                    host: config.get('DB_HOST', 'localhost'),
+                    port: config.get('DB_PORT', 5432),
+                    username: config.get('DB_USERNAME', 'roadwatch'),
+                    password: config.get('DB_PASSWORD', 'password123'),
+                    database: config.get('DB_DATABASE', 'roadwatch_db'),
+                    entities: [notification_entity_1.Notification],
+                    synchronize: true,
+                }),
+            }),
+            typeorm_1.TypeOrmModule.forFeature([notification_entity_1.Notification]),
         ],
-        providers: [notification_consumer_1.NotificationConsumer],
+        controllers: [notification_controller_1.NotificationController],
+        providers: [notification_consumer_1.NotificationConsumer, notification_service_1.NotificationService],
     })
 ], NotificationModule);
 //# sourceMappingURL=notification.module.js.map

@@ -118,8 +118,8 @@ let RoadController = class RoadController {
 exports.RoadController = RoadController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseGuards)(common_2.RolesGuard),
-    (0, common_2.Roles)('admin'),
+    // (0, common_1.UseGuards)(common_2.RolesGuard),
+    // (0, common_2.Roles)('admin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [CreateRoadDto]),

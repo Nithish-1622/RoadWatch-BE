@@ -16,23 +16,108 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const common_2 = require("@app/common");
+const class_validator_1 = require("class-validator");
+
+class RegisterDto {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsEmail)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "password", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "name", void 0);
+
+class LoginDto {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsEmail)(),
+    __metadata("design:type", String)
+], LoginDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], LoginDto.prototype, "password", void 0);
+
+class RefreshDto {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RefreshDto.prototype, "refreshToken", void 0);
+
+
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
     }
-    async getProfile(userId) {
-        const activeUserId = userId || 'anonymous';
-        return this.authService.getUserProfile(activeUserId);
+
+    async register(dto) {
+        return this.authService.register(dto.email, dto.password, dto.name);
+    }
+
+    async login(dto) {
+        return this.authService.login(dto.email, dto.password);
+    }
+
+    async me(req) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new common_1.UnauthorizedException('No bearer token provided');
+        }
+        const token = authHeader.split(' ')[1];
+        return this.authService.verifyTokenAndGetUser(token);
+    }
+
+    async refresh(dto) {
+        return this.authService.refreshTokens(dto.refreshToken);
     }
 };
 exports.AuthController = AuthController;
+
 __decorate([
-    (0, common_1.Get)('profile'),
-    __param(0, (0, common_1.Headers)('x-user-id')),
+    (0, common_1.Post)('register'),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [RegisterDto]),
     __metadata("design:returntype", Promise)
-], AuthController.prototype, "getProfile", null);
+], AuthController.prototype, "register", null);
+
+__decorate([
+    (0, common_1.Post)('login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [LoginDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "login", null);
+
+__decorate([
+    (0, common_1.Get)('me'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "me", null);
+
+__decorate([
+    (0, common_1.Post)('refresh'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [RefreshDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "refresh", null);
+
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('api/v1/auth'),
     (0, common_1.UseFilters)(common_2.HttpExceptionFilter),

@@ -9,8 +9,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const auth_service_1 = require("./auth.service");
+const typeorm_1 = require("@nestjs/typeorm");
+const user_entity_1 = require("./user.entity");
 const auth_controller_1 = require("./auth.controller");
+const auth_service_1 = require("./auth.service");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -18,6 +20,21 @@ exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    type: 'postgres',
+                    host: config.get('DB_HOST', 'localhost'),
+                    port: config.get('DB_PORT', 5432),
+                    username: config.get('DB_USERNAME', 'roadwatch'),
+                    password: config.get('DB_PASSWORD', 'password123'),
+                    database: config.get('DB_DATABASE', 'roadwatch_db'),
+                    entities: [user_entity_1.User],
+                    synchronize: true,
+                }),
+            }),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [auth_service_1.AuthService],

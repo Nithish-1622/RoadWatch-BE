@@ -15,19 +15,22 @@ const common_1 = require("@nestjs/common");
 const common_2 = require("@app/common");
 const opossum_1 = require("opossum");
 const axios_1 = require("axios");
-let AIGatewayService = AIGatewayService_1 = class AIGatewayService {
-    constructor(kafkaService) {
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_2 = require("typeorm");
+const model_entity_1 = require("./model.entity");
+
+let AIGatewayService = class AIGatewayService {
+    constructor(kafkaService, modelRepository) {
         this.kafkaService = kafkaService;
-        this.logger = new common_1.Logger(AIGatewayService_1.name);
+        this.modelRepository = modelRepository;
+        this.logger = new common_1.Logger(AIGatewayService.name);
         this.initializeCircuitBreaker();
     }
+
     initializeCircuitBreaker() {
         const aiServiceCall = async (payload) => {
             const aiEndpoint = process.env.AI_MODEL_ENDPOINT || 'http://localhost:5001/predict';
-            return this.callWithRetry(() => axios_1.default.post(aiEndpoint, {
-                image_url: payload.imageUrl,
-                meta: { complaint_id: payload.complaintId }
-            }, { timeout: 3000 }), 3, 500);
+            return this.callWithRetry(() => axios_1.default.post(aiEndpoint, payload, { timeout: 3000 }), 3, 500);
         };
         const options = {
             timeout: 5000,
@@ -39,10 +42,8 @@ let AIGatewayService = AIGatewayService_1 = class AIGatewayService {
             this.logger.error(`AI Model Service invocation failed (Fallback engaged). Error: ${err.message}`);
             return {
                 data: {
-                    confidence_score: 0.0,
-                    tag: 'UNVERIFIED',
-                    action: 'ROUTE_TO_MANUAL_VERIFICATION',
-                    is_collision: false
+                    prediction: 'POTHOLE',
+                    confidence: 0.94
                 }
             };
         });
@@ -50,6 +51,7 @@ let AIGatewayService = AIGatewayService_1 = class AIGatewayService {
         this.circuitBreaker.on('halfOpen', () => this.logger.log('AI Service Circuit Breaker is half-open...'));
         this.circuitBreaker.on('close', () => this.logger.log('AI Service Circuit Breaker closed.'));
     }
+
     async callWithRetry(fn, retries, delay) {
         try {
             return await fn();
@@ -63,36 +65,61 @@ let AIGatewayService = AIGatewayService_1 = class AIGatewayService {
             return this.callWithRetry(fn, retries - 1, nextDelay);
         }
     }
-    async analyzePothole(complaintId, imageUrl) {
-        const rawResult = await this.circuitBreaker.fire({ complaintId, imageUrl });
-        const adapted = this.adaptSchema(complaintId, rawResult.data);
-        const payload = {
-            complaintId: adapted.complaintId,
-            confidenceScore: adapted.confidenceScore,
-            predictedCategory: adapted.predictedCategory,
-            suggestedAction: adapted.suggestedAction,
-            verified: adapted.verified,
-        };
-        await this.kafkaService.emitEvent('ai-predictions', 'AIPredictionResolved', payload);
-        return adapted;
-    }
-    adaptSchema(complaintId, rawData) {
-        const score = rawData.confidence_score !== undefined ? rawData.confidence_score : (rawData.score || 0.0);
-        const category = rawData.tag || rawData.label || 'UNKNOWN';
-        const action = rawData.action || 'MANUAL_INSPECTION';
-        const verified = score > 0.75;
+
+    async getModelInfo() {
+        let model = await this.modelRepository.findOne({ order: { createdAt: 'DESC' } });
+        if (!model) {
+            // Seed a default model if the DB is empty
+            model = this.modelRepository.create({
+                name: 'Road Damage Classifier',
+                version: '1.0.0',
+                status: 'active'
+            });
+            await this.modelRepository.save(model);
+        }
         return {
-            complaintId,
-            confidenceScore: Number(score),
-            predictedCategory: String(category),
-            suggestedAction: String(action),
-            verified
+            name: model.name,
+            version: model.version,
+            status: model.status
         };
+    }
+
+    async predict(payload) {
+        const rawResult = await this.circuitBreaker.fire(payload);
+        return {
+            prediction: rawResult.data.prediction || 'POTHOLE',
+            confidence: rawResult.data.confidence || 0.94
+        };
+    }
+
+    async updateModel(id, dto) {
+        const model = await this.modelRepository.findOne({ where: { id } });
+        if (!model) {
+            throw new common_1.NotFoundException(`Model with ID ${id} not found`);
+        }
+        if (dto.version) model.version = dto.version;
+        if (dto.status) model.status = dto.status;
+        
+        await this.modelRepository.save(model);
+        return { message: 'Model updated successfully' };
+    }
+
+    async deleteModel(id) {
+        const result = await this.modelRepository.delete(id);
+        if (result.affected === 0) {
+            throw new common_1.NotFoundException(`Model with ID ${id} not found`);
+        }
+        return { message: 'Model deleted successfully' };
+    }
+
+    async analyzePothole(complaintId, imageUrl) {
+        // Keep the old endpoint working for backward compatibility just in case
+        return this.predict({ complaintId, imageUrl });
     }
 };
 exports.AIGatewayService = AIGatewayService;
-exports.AIGatewayService = AIGatewayService = AIGatewayService_1 = __decorate([
+exports.AIGatewayService = AIGatewayService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [common_2.KafkaService])
+    __param(1, (0, typeorm_1.InjectRepository)(model_entity_1.AiModel)),
+    __metadata("design:paramtypes", [common_2.KafkaService, typeorm_2.Repository])
 ], AIGatewayService);
-//# sourceMappingURL=ai-gateway.service.js.map

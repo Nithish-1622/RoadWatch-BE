@@ -23,17 +23,27 @@ let SearchController = class SearchController {
     async search(query, entityType, status) {
         return this.searchService.search(query, entityType, status);
     }
+    async createSavedSearch(dto) {
+        return this.searchService.createSavedSearch(dto);
+    }
 };
 exports.SearchController = SearchController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('q')),
+    __param(0, (0, common_1.Query)('query')),
     __param(1, (0, common_1.Query)('type')),
     __param(2, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], SearchController.prototype, "search", null);
+__decorate([
+    (0, common_1.Post)(),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], SearchController.prototype, "createSavedSearch", null);
 exports.SearchController = SearchController = __decorate([
     (0, common_1.Controller)('api/v1/search'),
     (0, common_1.UseFilters)(common_2.HttpExceptionFilter),
