@@ -1,12 +1,17 @@
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+        r = Reflect.decorate(decorators, target, key, desc);
+    else
+        for (var i = decorators.length - 1; i >= 0; i--)
+            if (d = decorators[i])
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+        return Reflect.metadata(k, v);
 };
 var SearchService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -21,32 +26,51 @@ let SearchService = SearchService_1 = class SearchService {
         this.client = new elasticsearch_1.Client({ node });
     }
     async onModuleInit() {
-        try {
-            const exists = await this.client.indices.exists({ index: this.indexName });
-            if (!exists) {
-                await this.client.indices.create({
-                    index: this.indexName,
-                    body: {
-                        mappings: {
-                            properties: {
-                                id: { type: 'keyword' },
-                                entityType: { type: 'keyword' },
-                                title: { type: 'text', analyzer: 'english' },
-                                description: { type: 'text', analyzer: 'english' },
-                                category: { type: 'keyword' },
-                                location: { type: 'geo_point' },
-                                status: { type: 'keyword' },
-                                budgetAmount: { type: 'double' },
-                                updatedAt: { type: 'date' },
+        if (process.env.DISABLE_SEARCH_SERVICE === 'true') {
+            this.logger.warn('Search service disabled via DISABLE_SEARCH_SERVICE env variable.');
+            this.client = null;
+            return;
+        }
+        const maxRetries = parseInt(process.env.ELASTICSEARCH_MAX_RETRIES || '5', 10);
+        const delayMs = parseInt(process.env.ELASTICSEARCH_RETRY_DELAY_MS || '2000', 10);
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                await this.client.ping();
+                this.logger.log(`Elasticsearch reachable (attempt ${attempt}).`);
+                const exists = await this.client.indices.exists({ index: this.indexName });
+                if (!exists) {
+                    await this.client.indices.create({
+                        index: this.indexName,
+                        body: {
+                            mappings: {
+                                properties: {
+                                    id: { type: 'keyword' },
+                                    entityType: { type: 'keyword' },
+                                    title: { type: 'text', analyzer: 'english' },
+                                    description: { type: 'text', analyzer: 'english' },
+                                    category: { type: 'keyword' },
+                                    location: { type: 'geo_point' },
+                                    status: { type: 'keyword' },
+                                    budgetAmount: { type: 'double' },
+                                    updatedAt: { type: 'date' },
+                                },
                             },
                         },
-                    },
-                });
-                this.logger.log(`Elasticsearch index "${this.indexName}" created successfully.`);
+                    });
+                    this.logger.log(`Elasticsearch index "${this.indexName}" created successfully.`);
+                }
+                return;
             }
-        }
-        catch (err) {
-            this.logger.error('Failed to connect or create Elasticsearch indices:', err);
+            catch (err) {
+                this.logger.error(`Elasticsearch connection attempt ${attempt} failed:`, err);
+                if (attempt < maxRetries) {
+                    await new Promise(res => setTimeout(res, delayMs));
+                }
+                else {
+                    this.logger.error('All Elasticsearch connection attempts failed. Search service will operate in fallback mode.');
+                    this.client = null;
+                }
+            }
         }
     }
     async indexDocument(id, doc) {

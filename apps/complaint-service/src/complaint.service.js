@@ -130,6 +130,29 @@ let ComplaintService = ComplaintService_1 = class ComplaintService {
         }
         return complaint;
     }
+    async findAll() {
+        return this.complaintRepository.find();
+    }
+    async update(id, dto) {
+        const complaint = await this.complaintRepository.findOne({ where: { id } });
+        if (!complaint) return null;
+        if (dto.description !== undefined) complaint.description = dto.description;
+        if (dto.roadId !== undefined) complaint.roadId = dto.roadId;
+        if (dto.documentIds !== undefined) complaint.documentIds = dto.documentIds;
+        if (dto.latitude !== undefined && dto.longitude !== undefined) {
+            complaint.location = {
+                type: 'Point',
+                coordinates: [dto.longitude, dto.latitude],
+            };
+        }
+        return this.complaintRepository.save(complaint);
+    }
+    async remove(id) {
+        const complaint = await this.complaintRepository.findOne({ where: { id } });
+        if (!complaint) return null;
+        await this.complaintRepository.remove(complaint);
+        return { deleted: true, id };
+    }
     async getTimeline(complaintId) {
         const complaint = await this.getOne(complaintId);
         if (!complaint) return null;

@@ -14,55 +14,95 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
 const document_service_1 = require("./document.service");
-const document_metadata_entity_1 = require("./document-metadata.entity");
-const common_2 = require("@app/common");
 const class_validator_1 = require("class-validator");
-class DocumentUploadBody {
-}
+const class_transformer_1 = require("class-transformer");
+
+class CreateDocumentDto {}
 __decorate([
-    (0, class_validator_1.IsEnum)(document_metadata_entity_1.LinkedEntityType),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], DocumentUploadBody.prototype, "linkedEntityType", void 0);
+], CreateDocumentDto.prototype, "title", void 0);
 __decorate([
-    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], DocumentUploadBody.prototype, "linkedEntityId", void 0);
+], CreateDocumentDto.prototype, "fileUrl", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateDocumentDto.prototype, "description", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_transformer_1.Type)(() => Number),
+    __metadata("design:type", Number)
+], CreateDocumentDto.prototype, "roadId", void 0);
+
+class UpdateDocumentDto {}
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateDocumentDto.prototype, "title", void 0);
+
 let DocumentController = class DocumentController {
     constructor(documentService) {
         this.documentService = documentService;
     }
-    async upload(file, body, userId) {
-        const uploadedBy = userId || 'system';
-        return this.documentService.uploadDocument(file, body.linkedEntityType, body.linkedEntityId, uploadedBy);
+    async create(dto) {
+        return this.documentService.create(dto);
     }
-    async getByEntity(entityType, entityId) {
-        return this.documentService.findByEntity(entityType, entityId);
+    async findAll() {
+        return this.documentService.findAll();
+    }
+    async findOne(id) {
+        return this.documentService.findOne(id);
+    }
+    async update(id, dto) {
+        return this.documentService.update(id, dto);
+    }
+    async remove(id) {
+        return this.documentService.remove(id);
     }
 };
 exports.DocumentController = DocumentController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
-    __param(0, (0, common_1.UploadedFile)()),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Headers)('x-user-id')),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, DocumentUploadBody, String]),
+    __metadata("design:paramtypes", [CreateDocumentDto]),
     __metadata("design:returntype", Promise)
-], DocumentController.prototype, "upload", null);
+], DocumentController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(':entityType/:entityId'),
-    __param(0, (0, common_1.Param)('entityType')),
-    __param(1, (0, common_1.Param)('entityId')),
+    (0, common_1.Get)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], DocumentController.prototype, "getByEntity", null);
+], DocumentController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], DocumentController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, UpdateDocumentDto]),
+    __metadata("design:returntype", Promise)
+], DocumentController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], DocumentController.prototype, "remove", null);
 exports.DocumentController = DocumentController = __decorate([
     (0, common_1.Controller)('api/v1/documents'),
-    (0, common_1.UseFilters)(common_2.HttpExceptionFilter),
     __metadata("design:paramtypes", [document_service_1.DocumentService])
 ], DocumentController);
-//# sourceMappingURL=document.controller.js.map

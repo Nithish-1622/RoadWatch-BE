@@ -9,9 +9,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
+    return function (target, key) { decorator(target, key, paramIndex); };
 };
-var RoadService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoadService = void 0;
 const common_1 = require("@nestjs/common");
@@ -20,18 +19,15 @@ const typeorm_2 = require("typeorm");
 const road_entity_1 = require("./road.entity");
 const common_2 = require("@app/common");
 const ioredis_1 = require("ioredis");
-let RoadService = RoadService_1 = class RoadService {
+let RoadService = class RoadService {
     constructor(roadRepository, kafkaService) {
         this.roadRepository = roadRepository;
         this.kafkaService = kafkaService;
-        this.logger = new common_1.Logger(RoadService_1.name);
+        this.logger = new common_1.Logger(RoadService.name);
         this.redis = new ioredis_1.default(process.env.REDIS_URL || 'redis://localhost:6379');
     }
     async create(createDto) {
-        const lineString = {
-            type: 'LineString',
-            coordinates: createDto.coordinates.map(c => [c.lng, c.lat]),
-        };
+        const lineString = { type: 'LineString', coordinates: createDto.coordinates.map(c => [c.lng, c.lat]) };
         const road = this.roadRepository.create({
             name: createDto.name,
             category: createDto.category,
@@ -49,6 +45,13 @@ let RoadService = RoadService_1 = class RoadService {
         };
         await this.kafkaService.emitEvent('road-updates', 'RoadCreatedEvent', payload);
         return savedRoad;
+    }
+    // Retrieve all roads
+    async findAll() {
+        // Return only scalar fields to avoid geometry serialization issues
+        return this.roadRepository.find({
+            select: ['id', 'name', 'category', 'authorityName', 'authorityEmail'],
+        });
     }
     async findOne(id) {
         const cacheKey = `road:${id}`;
@@ -69,19 +72,14 @@ let RoadService = RoadService_1 = class RoadService {
         if (!road) {
             return null;
         }
-        // Merge allowed fields
         if (updateDto.name !== undefined) road.name = updateDto.name;
         if (updateDto.category !== undefined) road.category = updateDto.category;
         if (updateDto.authorityName !== undefined) road.authorityName = updateDto.authorityName;
         if (updateDto.authorityEmail !== undefined) road.authorityEmail = updateDto.authorityEmail;
         if (updateDto.coordinates !== undefined) {
-            road.geometry = {
-                type: 'LineString',
-                coordinates: updateDto.coordinates.map(c => [c.lng, c.lat]),
-            };
+            road.geometry = { type: 'LineString', coordinates: updateDto.coordinates.map(c => [c.lng, c.lat]) };
         }
         const saved = await this.roadRepository.save(road);
-        // Invalidate cache
         await this.redis.del(`road:${id}`);
         return saved;
     }
@@ -94,7 +92,6 @@ let RoadService = RoadService_1 = class RoadService {
         await this.redis.del(`road:${id}`);
         return { message: 'Road deleted successfully' };
     }
-    
     async findNearby(lat, lng, radiusInMeters) {
         const result = await this.roadRepository.createQueryBuilder('road')
             .select('road.id', 'id')
@@ -120,35 +117,20 @@ let RoadService = RoadService_1 = class RoadService {
             distanceInMeters: parseFloat(result.distance),
         };
     }
-    
     async ensureSampleRoad() {
-      const lineString = {
-        type: 'LineString',
-        coordinates: [
-          [80.2707, 13.0827],
-          [80.2750, 13.0900],
-        ],
-      };
-      const road = this.roadRepository.create({
-        name: 'Sample Road',
-        category: 'NH',
-        geometry: lineString,
-        authorityName: 'Sample Authority',
-        authorityEmail: 'sample@example.com',
-      });
-      await this.roadRepository.save(road);
-      this.logger.log('Seeded sample road');
+        const lineString = { type: 'LineString', coordinates: [[80.2707, 13.0827], [80.2750, 13.0900]] };
+        const road = this.roadRepository.create({ name: 'Sample Road', category: 'NH', geometry: lineString, authorityName: 'Sample Authority', authorityEmail: 'sample@example.com' });
+        await this.roadRepository.save(road);
+        this.logger.log('Seeded sample road');
     }
-
     async onApplicationBootstrap() {
-      await this.ensureSampleRoad();
+        await this.ensureSampleRoad();
     }
 };
-exports.RoadService = RoadService;
-exports.RoadService = RoadService = RoadService_1 = __decorate([
+RoadService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(road_entity_1.Road)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        common_2.KafkaService])
+    __metadata("design:paramtypes", [typeorm_2.Repository, common_2.KafkaService])
 ], RoadService);
+exports.RoadService = RoadService;
 //# sourceMappingURL=road.service.js.map

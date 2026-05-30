@@ -1,259 +1,584 @@
 {
-    "info": {
-        "name": "RoadWatch API",
-        "_postman_id": "roadwatch-api-v1",
-        "description": "RoadWatch Backend API Collection for All Services",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
+  "info": {
+    "name": "RoadWatch API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for RoadWatch services with full CRUD endpoints and correct ports."
+    "variable": [
+    {"key": "road_host", "value": "{{road_host}}"},
+    {"key": "budget_host", "value": "http://localhost:3002"},
+    {"key": "complaint_host", "value": "http://localhost:3003"},
+    {"key": "document_host", "value": "http://localhost:3004"},
+    {"key": "search_host", "value": "http://localhost:3005"},
+    {"key": "ai_host", "value": "http://localhost:3006"},
+    {"key": "auth_host", "value": "http://localhost:3007"},
+    {"key": "notification_host", "value": "http://localhost:3008"},
+    {"key": "accessToken", "value": ""},
+    {"key": "roadId", "value": "1"}
+  ],
+},
+  "item": [
+    {
+      "name": "Road Service",
+      "item": [
         {
-            "name": "Road Service",
-            "item": [
-                {
-                    "name": "Create Road",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-role", "value": "admin"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"GST Road\",\n  \"category\": \"NH\",\n  \"coordinates\": [\n    {\n      \"lat\": 13.0827,\n      \"lng\": 80.2707\n    },\n    {\n      \"lat\": 13.0900,\n      \"lng\": 80.2750\n    }\n  ],\n  \"authorityName\": \"Tamil Nadu Highways\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/roads", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "roads"]}
-                    }
-                },
-                {
-                    "name": "Get Nearby Roads",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "http://localhost:3001/api/v1/roads/nearby?lat=13.0827&lng=80.2707&radius=5000",
-                            "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "roads", "nearby"],
-                            "query": [
-                                {"key": "lat", "value": "13.0827"},
-                                {"key": "lng", "value": "80.2707"},
-                                {"key": "radius", "value": "5000"}
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Get Road By ID",
-                    "request": {"method": "GET", "url": {"raw": "http://localhost:3001/api/v1/roads/1", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "roads", "1"]}}
-                },
-                {
-                    "name": "Update Road",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-role", "value": "admin"}
-                        ],
-                        "body": {"mode": "raw", "raw": "{\n  \"name\": \"Updated GST Road\",\n  \"category\": \"SH\"\n}"},
-                        "url": {"raw": "http://localhost:3001/api/v1/roads/1", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "roads", "1"]}
-                    }
-                },
-                {
-                    "name": "Delete Road",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [{"key": "x-user-role", "value": "admin"}],
-                        "url": {"raw": "http://localhost:3001/api/v1/roads/1", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "roads", "1"]}
-                    }
-                }
-            ]
+          "name": "Get All Roads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{road_host}}/api/v1/roads",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "roads"]
+            }
+          }
         },
         {
-            "name": "Auth Service",
-            "item": [
-                {
-                    "name": "Get Profile",
-                    "request": {
-                        "method": "GET",
-                        "header": [{"key": "x-user-id", "value": "user-123"}],
-                        "url": {"raw": "http://localhost:3001/api/v1/auth/profile", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "auth", "profile"]}
-                    }
-                }
-            ]
+          "name": "Get Road By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{road_host}}/api/v1/roads/{{roadId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "roads", "1"]
+            }
+          }
         },
         {
-            "name": "AI Gateway Service",
-            "item": [
-                {
-                    "name": "Analyze Pothole",
-                    "request": {
-                        "method": "POST",
-                        "header": [{"key": "Content-Type", "value": "application/json"}],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"complaintId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"imageUrl\": \"https://example.com/pothole.jpg\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/ai/analyze-pothole", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "ai", "analyze-pothole"]}
-                    }
-                }
-            ]
+          "name": "Create Road",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Main St\", \"length\": 5000}"
+            },
+            "url": {
+              "raw": "{{road_host}}/api/v1/roads",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "roads"]
+            }
+          }
         },
         {
-            "name": "Budget Service",
-            "item": [
-                {
-                    "name": "Create Contractor",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-role", "value": "admin"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"ABC Constructions\",\n  \"licenseNumber\": \"LIC-2026-999\",\n  \"email\": \"contact@abc.com\",\n  \"phone\": \"+919876543210\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/budgets/contractors", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "budgets", "contractors"]}
-                    }
-                },
-                {
-                    "name": "Create Budget",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-role", "value": "admin"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"roadId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"contractorId\": \"123e4567-e89b-12d3-a456-426614174001\",\n  \"sanctionedAmount\": 5000000,\n  \"tenderReference\": \"TNDR-2026-001\",\n  \"sanctionDate\": \"2026-05-30T00:00:00.000Z\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/budgets", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "budgets"]}
-                    }
-                },
-                {
-                    "name": "Update Expenditure",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-role", "value": "contractor"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"releasedAmount\": 1000000,\n  \"spentAmount\": 500000\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/budgets/1/expenditure", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "budgets", "1", "expenditure"]}
-                    }
-                },
-                {
-                    "name": "Get Budget by Road",
-                    "request": {"method": "GET", "url": {"raw": "http://localhost:3001/api/v1/budgets/road/123e4567-e89b-12d3-a456-426614174000", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "budgets", "road", "123e4567-e89b-12d3-a456-426614174000"]}}
-                }
-            ]
+          "name": "Update Road",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Main St Updated\", \"length\": 5200}"
+            },
+            "url": {
+              "raw": "{{road_host}}/api/v1/roads/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "roads", "1"]
+            }
+          }
         },
         {
-            "name": "Complaint Service",
-            "item": [
-                {
-                    "name": "Create Complaint",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-id", "value": "citizen-123"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"latitude\": 13.0827,\n  \"longitude\": 80.2707,\n  \"description\": \"Large pothole near the intersection\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/complaints", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "complaints"]}
-                    }
-                },
-                {
-                    "name": "Bulk Sync Complaints",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-id", "value": "citizen-123"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"complaints\": [\n    {\n      \"latitude\": 13.0827,\n      \"longitude\": 80.2707,\n      \"description\": \"Pothole 1\"\n    }\n  ]\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/complaints/sync", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "complaints", "sync"]}
-                    }
-                },
-                {
-                    "name": "Update Complaint Status",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
-                            {"key": "Content-Type", "value": "application/json"},
-                            {"key": "x-user-id", "value": "officer-456"},
-                            {"key": "x-user-role", "value": "government officer"}
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"remarks\": \"Team dispatched to inspect\"\n}"
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/complaints/1/status", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "complaints", "1", "status"]}
-                    }
-                },
-                {
-                    "name": "Get Complaint",
-                    "request": {"method": "GET", "url": {"raw": "http://localhost:3001/api/v1/complaints/1", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "complaints", "1"]}}
-                },
-                {
-                    "name": "Get Complaint Timeline",
-                    "request": {"method": "GET", "url": {"raw": "http://localhost:3001/api/v1/complaints/1/timeline", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "complaints", "1", "timeline"]}}
-                }
-            ]
-        },
-        {
-            "name": "Document Service",
-            "item": [
-                {
-                    "name": "Upload Document",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {"key": "x-user-id", "value": "user-123"}
-                        ],
-                        "body": {
-                            "mode": "formdata",
-                            "formdata": [
-                                {"key": "file", "type": "file", "src": []},
-                                {"key": "linkedEntityType", "type": "text", "value": "Complaint"},
-                                {"key": "linkedEntityId", "type": "text", "value": "123e4567-e89b-12d3-a456-426614174000"}
-                            ]
-                        },
-                        "url": {"raw": "http://localhost:3001/api/v1/documents", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "documents"]}
-                    }
-                },
-                {
-                    "name": "Get Documents By Entity",
-                    "request": {"method": "GET", "url": {"raw": "http://localhost:3001/api/v1/documents/Complaint/123e4567-e89b-12d3-a456-426614174000", "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "documents", "Complaint", "123e4567-e89b-12d3-a456-426614174000"]}}
-                }
-            ]
-        },
-        {
-            "name": "Search Service",
-            "item": [
-                {
-                    "name": "Global Search",
-                    "request": {
-                        "method": "GET",
-                        "url": {
-                            "raw": "http://localhost:3001/api/v1/search?q=pothole",
-                            "protocol": "http", "host": ["localhost"], "port": "3001", "path": ["api", "v1", "search"],
-                            "query": [
-                                {"key": "q", "value": "pothole"},
-                                {"key": "type", "value": "complaint", "disabled": true},
-                                {"key": "status", "value": "OPEN", "disabled": true}
-                            ]
-                        }
-                    }
-                }
-            ]
+          "name": "Delete Road",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{road_host}}/api/v1/roads/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["api", "v1", "roads", "1"]
+            }
+          }
         }
-    ]
+      ]
+    },
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"user\", \"password\": \"pass\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"newuser\", \"password\": \"newpass\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\": \"<token>\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/refresh",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Gateway Service",
+      "item": [
+        {
+          "name": "Predict",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"data\": \"sample\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/ai/predict",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "ai", "predict"]
+            }
+          }
+        },
+        {
+          "name": "Get Model Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/ai/model",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "ai", "model"]
+            }
+          }
+        },
+        {
+          "name": "Update Model",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"parameter\": \"newValue\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/ai/model",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "ai", "model"]
+            }
+          }
+        },
+        {
+          "name": "Delete Model",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/ai/model/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "ai", "model", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget Service",
+      "item": [
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"amount\": 1000, \"roadId\": 1}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/api/v1/budgets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "Get All Budgets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/budgets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "Get Budget By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/budgets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "budgets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Budget",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"amount\": 1500}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/api/v1/budgets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "budgets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Budget",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/api/v1/budgets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["api", "v1", "budgets", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complaint Service",
+      "item": [
+        {
+          "name": "Create Complaint",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\": \"Pothole\", \"roadId\": 1}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/api/v1/complaints",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "complaints"]
+            }
+          }
+        },
+        {
+          "name": "Get All Complaints",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/complaints",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "complaints"]
+            }
+          }
+        },
+        {
+          "name": "Get Complaint By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/complaints/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "complaints", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Complaint",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"description\": \"Pothole fixed\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/api/v1/complaints/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "complaints", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Complaint",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/complaints/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["api", "v1", "complaints", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Service",
+      "item": [
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Road Map\", \"content\": \"...\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3004/api/v1/documents",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Get All Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/documents",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Get Document By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/documents/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "documents", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Document",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Updated Map\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3004/api/v1/documents/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "documents", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/api/v1/documents/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["api", "v1", "documents", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search Service",
+      "item": [
+        {
+          "name": "Search Roads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3005/api/v1/search?query=highway",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3005",
+              "path": ["api", "v1", "search"],
+              "query": [{"key": "query", "value": "highway"}]
+            }
+          }
+        },
+        {
+          "name": "Create Saved Search",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Highways\", \"query\": \"highway\"}"
+            },
+            "url": {
+              "raw": "http://localhost:3005/api/v1/search",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3005",
+              "path": ["api", "v1", "search"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notification Service",
+      "item": [
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"message\": \"Road closed\", \"roadId\": 1}"
+            },
+            "url": {
+              "raw": "http://localhost:3008/api/v1/notifications",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3008",
+              "path": ["api", "v1", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3008/api/v1/notifications",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3008",
+              "path": ["api", "v1", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3008/api/v1/notifications/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3008",
+              "path": ["api", "v1", "notifications", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

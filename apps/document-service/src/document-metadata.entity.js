@@ -9,52 +9,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DocumentMetadata = exports.LinkedEntityType = void 0;
+exports.DocumentMetadata = void 0;
 const typeorm_1 = require("typeorm");
-const common_1 = require("@app/common");
-var LinkedEntityType;
-(function (LinkedEntityType) {
-    LinkedEntityType["ROAD"] = "ROAD";
-    LinkedEntityType["COMPLAINT"] = "COMPLAINT";
-    LinkedEntityType["CONTRACTOR"] = "CONTRACTOR";
-    LinkedEntityType["BUDGET"] = "BUDGET";
-})(LinkedEntityType || (exports.LinkedEntityType = LinkedEntityType = {}));
-let DocumentMetadata = class DocumentMetadata extends common_1.BaseEntity {
+
+let DocumentMetadata = class DocumentMetadata {
 };
 exports.DocumentMetadata = DocumentMetadata;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'file_name' }),
-    __metadata("design:type", String)
-], DocumentMetadata.prototype, "fileName", void 0);
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], DocumentMetadata.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'file_type' }),
+    (0, typeorm_1.Column)({ name: 'road_id', type: 'int', nullable: true }),
+    __metadata("design:type", Number)
+], DocumentMetadata.prototype, "roadId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], DocumentMetadata.prototype, "title", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'file_url' }),
+    __metadata("design:type", String)
+], DocumentMetadata.prototype, "fileUrl", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'public_id', nullable: true }),
+    __metadata("design:type", String)
+], DocumentMetadata.prototype, "publicId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'file_type', nullable: true }),
     __metadata("design:type", String)
 ], DocumentMetadata.prototype, "fileType", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'cloudinary_url', length: 2083 }),
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
-], DocumentMetadata.prototype, "cloudinaryUrl", void 0);
+], DocumentMetadata.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'cloudinary_public_id' }),
-    __metadata("design:type", String)
-], DocumentMetadata.prototype, "cloudinaryPublicId", void 0);
+    (0, typeorm_1.CreateDateColumn)({ name: 'uploaded_at' }),
+    __metadata("design:type", Date)
+], DocumentMetadata.prototype, "uploadedAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        name: 'linked_entity_type',
-        type: 'enum',
-        enum: LinkedEntityType,
-    }),
-    __metadata("design:type", String)
-], DocumentMetadata.prototype, "linkedEntityType", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'linked_entity_id', type: 'uuid' }),
-    __metadata("design:type", String)
-], DocumentMetadata.prototype, "linkedEntityId", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ name: 'uploaded_by' }),
-    __metadata("design:type", String)
-], DocumentMetadata.prototype, "uploadedBy", void 0);
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    __metadata("design:type", Date)
+], DocumentMetadata.prototype, "updatedAt", void 0);
 exports.DocumentMetadata = DocumentMetadata = __decorate([
     (0, typeorm_1.Entity)('document_metadata')
 ], DocumentMetadata);
-//# sourceMappingURL=document-metadata.entity.js.map

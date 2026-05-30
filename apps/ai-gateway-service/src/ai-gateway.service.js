@@ -34,7 +34,7 @@ let AIGatewayService = AIGatewayService_1 = class AIGatewayService {
             errorThresholdPercentage: 50,
             resetTimeout: 10000
         };
-        this.circuitBreaker = new opossum_1.default(aiServiceCall, options);
+        this.circuitBreaker = new (opossum_1.default || opossum_1)(aiServiceCall, options);
         this.circuitBreaker.fallback((payload, err) => {
             this.logger.error(`AI Model Service invocation failed (Fallback engaged). Error: ${err.message}`);
             return {

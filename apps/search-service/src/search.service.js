@@ -17,36 +17,72 @@ let SearchService = SearchService_1 = class SearchService {
     constructor() {
         this.logger = new common_1.Logger(SearchService_1.name);
         this.indexName = 'roadwatch-search';
-        const node = process.env.ELASTICSEARCH_NODE || 'http://localhost:9200';
-        this.client = new elasticsearch_1.Client({ node });
+        const node = process.env.ELASTICSEARCH_NODE || 'https://localhost:9200';
+        const username = process.env.ELASTICSEARCH_USERNAME || 'elastic';
+        const password = process.env.ELASTICSEARCH_PASSWORD || '';
+        
+        const clientOptions = {
+            node,
+            tls: {
+                rejectUnauthorized: false
+            }
+        };
+
+        if (username && password) {
+            clientOptions.auth = { username, password };
+        }
+
+        this.client = new elasticsearch_1.Client(clientOptions);
     }
     async onModuleInit() {
-        try {
-            const exists = await this.client.indices.exists({ index: this.indexName });
-            if (!exists) {
-                await this.client.indices.create({
-                    index: this.indexName,
-                    body: {
-                        mappings: {
-                            properties: {
-                                id: { type: 'keyword' },
-                                entityType: { type: 'keyword' },
-                                title: { type: 'text', analyzer: 'english' },
-                                description: { type: 'text', analyzer: 'english' },
-                                category: { type: 'keyword' },
-                                location: { type: 'geo_point' },
-                                status: { type: 'keyword' },
-                                budgetAmount: { type: 'double' },
-                                updatedAt: { type: 'date' },
+        // Optionally disable the Search service via env variable
+        if (process.env.DISABLE_SEARCH_SERVICE === 'true') {
+            this.logger.warn('Search service disabled via DISABLE_SEARCH_SERVICE env variable.');
+            this.client = null;
+            return;
+        }
+
+        const maxRetries = parseInt(process.env.ELASTICSEARCH_MAX_RETRIES || '5', 10);
+        const delayMs = parseInt(process.env.ELASTICSEARCH_RETRY_DELAY_MS || '2000', 10);
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                // Ping to ensure Elasticsearch is reachable
+                await this.client.ping();
+                this.logger.log(`Elasticsearch reachable (attempt ${attempt}).`);
+                const exists = await this.client.indices.exists({ index: this.indexName });
+                if (!exists) {
+                    await this.client.indices.create({
+                        index: this.indexName,
+                        body: {
+                            mappings: {
+                                properties: {
+                                    id: { type: 'keyword' },
+                                    entityType: { type: 'keyword' },
+                                    title: { type: 'text', analyzer: 'english' },
+                                    description: { type: 'text', analyzer: 'english' },
+                                    category: { type: 'keyword' },
+                                    location: { type: 'geo_point' },
+                                    status: { type: 'keyword' },
+                                    budgetAmount: { type: 'double' },
+                                    updatedAt: { type: 'date' },
+                                },
                             },
                         },
-                    },
-                });
-                this.logger.log(`Elasticsearch index "${this.indexName}" created successfully.`);
+                    });
+                    this.logger.log(`Elasticsearch index "${this.indexName}" created successfully.`);
+                }
+                // Successful init, exit loop
+                return;
+            } catch (err) {
+                this.logger.error(`Elasticsearch connection attempt ${attempt} failed:`, err);
+                if (attempt < maxRetries) {
+                    await new Promise(res => setTimeout(res, delayMs));
+                } else {
+                    this.logger.error('All Elasticsearch connection attempts failed. Search service will operate in fallback mode.');
+                    this.client = null; // disable client usage
+                }
             }
-        }
-        catch (err) {
-            this.logger.error('Failed to connect or create Elasticsearch indices:', err);
         }
     }
     async indexDocument(id, doc) {

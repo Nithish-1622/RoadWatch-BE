@@ -11,74 +11,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var DocumentService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const document_metadata_entity_1 = require("./document-metadata.entity");
-const common_2 = require("@app/common");
-const cloudinary_1 = require("cloudinary");
-let DocumentService = DocumentService_1 = class DocumentService {
-    constructor(metadataRepository, kafkaService) {
-        this.metadataRepository = metadataRepository;
-        this.kafkaService = kafkaService;
-        this.logger = new common_1.Logger(DocumentService_1.name);
-        cloudinary_1.v2.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'roadwatch_cloud',
-            api_key: process.env.CLOUDINARY_API_KEY || 'key',
-            api_secret: process.env.CLOUDINARY_API_SECRET || 'secret',
-        });
+
+let DocumentService = class DocumentService {
+    constructor(documentRepository) {
+        this.documentRepository = documentRepository;
     }
-    async uploadDocument(file, linkedEntityType, linkedEntityId, uploadedBy) {
-        this.logger.log(`Uploading file ${file.originalname} for ${linkedEntityType} ID ${linkedEntityId}`);
-        let uploadResult = { secure_url: `https://res.cloudinary.com/roadwatch/raw/upload/${file.originalname}`, public_id: 'mock_id' };
-        if (process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-            try {
-                uploadResult = await new Promise((resolve, reject) => {
-                    cloudinary_1.v2.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
-                        if (error)
-                            return reject(error);
-                        resolve(result);
-                    }).end(file.buffer);
-                });
-            }
-            catch (err) {
-                this.logger.error('Cloudinary upload failure, using mock upload fallback:', err);
-            }
+    async create(dto) {
+        const doc = this.documentRepository.create(dto);
+        return this.documentRepository.save(doc);
+    }
+    async findAll() {
+        return this.documentRepository.find();
+    }
+    async findOne(id) {
+        const doc = await this.documentRepository.findOne({ where: { id } });
+        if (!doc) {
+            throw new common_1.NotFoundException(`Document with ID ${id} not found`);
         }
-        const metadata = this.metadataRepository.create({
-            fileName: file.originalname,
-            fileType: file.mimetype,
-            cloudinaryUrl: uploadResult.secure_url,
-            cloudinaryPublicId: uploadResult.public_id,
-            linkedEntityType,
-            linkedEntityId,
-            uploadedBy,
-        });
-        const savedMetadata = await this.metadataRepository.save(metadata);
-        const payload = {
-            documentId: savedMetadata.id,
-            fileName: savedMetadata.fileName,
-            fileType: savedMetadata.fileType,
-            cloudinaryUrl: savedMetadata.cloudinaryUrl,
-            linkedEntityType: savedMetadata.linkedEntityType,
-            linkedEntityId: savedMetadata.linkedEntityId,
-            uploadedBy: savedMetadata.uploadedBy,
-        };
-        await this.kafkaService.emitEvent('document-events', 'DocumentUploadedEvent', payload, uploadedBy);
-        return savedMetadata;
+        return doc;
     }
-    async findByEntity(type, entityId) {
-        return this.metadataRepository.find({ where: { linkedEntityType: type, linkedEntityId: entityId } });
+    async update(id, dto) {
+        const doc = await this.findOne(id);
+        Object.assign(doc, dto);
+        return this.documentRepository.save(doc);
+    }
+    async remove(id) {
+        const doc = await this.findOne(id);
+        await this.documentRepository.remove(doc);
+        return { deleted: true, id };
     }
 };
 exports.DocumentService = DocumentService;
-exports.DocumentService = DocumentService = DocumentService_1 = __decorate([
+exports.DocumentService = DocumentService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(document_metadata_entity_1.DocumentMetadata)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        common_2.KafkaService])
+    __metadata("design:paramtypes", [typeorm_2.Repository])
 ], DocumentService);
-//# sourceMappingURL=document.service.js.map

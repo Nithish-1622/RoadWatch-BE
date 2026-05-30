@@ -17,8 +17,8 @@ let Budget = class Budget extends common_1.BaseEntity {
 };
 exports.Budget = Budget;
 __decorate([
-    (0, typeorm_1.Column)({ name: 'road_id', type: 'uuid' }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ name: 'road_id', type: 'int' }),
+    __metadata("design:type", Number)
 ], Budget.prototype, "roadId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => contractor_entity_1.Contractor, { eager: true }),

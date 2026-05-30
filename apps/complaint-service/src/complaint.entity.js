@@ -31,8 +31,8 @@ __decorate([
     __metadata("design:type", String)
 ], Complaint.prototype, "citizenId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'road_id', type: 'uuid', nullable: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ name: 'road_id', type: 'int', nullable: true }),
+    __metadata("design:type", Number)
 ], Complaint.prototype, "roadId", void 0);
 __decorate([
     (0, typeorm_1.Column)({

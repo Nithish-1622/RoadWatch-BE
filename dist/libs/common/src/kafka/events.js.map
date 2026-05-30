@@ -1,1 +1,1 @@
-{"version":3,"file":"events.js","sourceRoot":"","sources":["../../../../../libs/common/src/kafka/events.ts"],"names":[],"mappings":""}
+{"version":3,"file":"events.js","sourceRoot":"","sources":["../../../../../libs/common/src/kafka/events.js"],"names":[],"mappings":"AAAA,YAAY,CAAC;AACb,MAAM,CAAC,cAAc,CAAC,OAAO,EAAE,YAAY,EAAE,EAAE,KAAK,EAAE,IAAI,EAAE,CAAC,CAAC"}

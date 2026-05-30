@@ -38,12 +38,12 @@ __decorate([
 class CreateBudgetDto {
 }
 __decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
 ], CreateBudgetDto.prototype, "roadId", void 0);
 __decorate([
-    (0, class_validator_1.IsUUID)(),
-    __metadata("design:type", String)
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
 ], CreateBudgetDto.prototype, "contractorId", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
@@ -72,6 +72,46 @@ __decorate([
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], UpdateExpenditureDto.prototype, "spentAmount", void 0);
+class UpdateBudgetDto {
+}
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateBudgetDto.prototype, "roadId", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateBudgetDto.prototype, "contractorId", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateBudgetDto.prototype, "sanctionedAmount", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBudgetDto.prototype, "tenderReference", void 0);
+__decorate([
+    (0, class_validator_1.IsDateString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBudgetDto.prototype, "sanctionDate", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateBudgetDto.prototype, "releasedAmount", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateBudgetDto.prototype, "spentAmount", void 0);
 let BudgetController = class BudgetController {
     constructor(budgetService) {
         this.budgetService = budgetService;
@@ -91,12 +131,27 @@ let BudgetController = class BudgetController {
     async getByRoad(roadId) {
         return this.budgetService.findByRoad(roadId);
     }
+
+    // New endpoint to retrieve all budgets
+    async findAll() {
+        return this.budgetService.findAll();
+    }
+    // Endpoint to retrieve a single budget by ID
+    async findOne(id) {
+        return this.budgetService.findOne(id);
+    }
+    // Update a budget by ID
+    async update(id, dto) {
+        return this.budgetService.update(id, dto);
+    }
+    // Delete a budget by ID
+    async remove(id) {
+        return this.budgetService.remove(id);
+    }
 };
 exports.BudgetController = BudgetController;
 __decorate([
     (0, common_1.Post)('contractors'),
-    (0, common_1.UseGuards)(common_2.RolesGuard),
-    (0, common_2.Roles)('admin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [CreateContractorDto]),
@@ -104,17 +159,13 @@ __decorate([
 ], BudgetController.prototype, "createContractor", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseGuards)(common_2.RolesGuard),
-    (0, common_2.Roles)('admin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [CreateBudgetDto]),
     __metadata("design:returntype", Promise)
 ], BudgetController.prototype, "createBudget", null);
 __decorate([
-    (0, common_1.Patch)(':id/expenditure'),
-    (0, common_1.UseGuards)(common_2.RolesGuard),
-    (0, common_2.Roles)('admin', 'contractor'),
+    (0, common_1.Put)(':id/expenditure'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -128,6 +179,39 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], BudgetController.prototype, "getByRoad", null);
+
+// Added endpoint to retrieve all budgets
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "findAll", null);
+// Endpoint to retrieve a single budget by ID
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "findOne", null);
+// Update a budget by ID
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, UpdateBudgetDto]),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "update", null);
+// Delete a budget by ID
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "remove", null);
 exports.BudgetController = BudgetController = __decorate([
     (0, common_1.Controller)('api/v1/budgets'),
     (0, common_1.UseFilters)(common_2.HttpExceptionFilter),

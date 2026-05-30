@@ -111,6 +111,9 @@ let RoadController = class RoadController {
     async delete(id) {
         return this.roadService.deleteRoad(id);
     }
+    async getAll() {
+        return this.roadService.findAll();
+    }
 };
 exports.RoadController = RoadController;
 __decorate([
@@ -124,13 +127,19 @@ __decorate([
 ], RoadController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('nearby'),
-    __param(0, (0, common_1.Query)('latitude')),
-    __param(1, (0, common_1.Query)('longitude')),
+    __param(0, (0, common_1.Query)('lat')),
+    __param(1, (0, common_1.Query)('lng')),
     __param(2, (0, common_1.Query)('radius')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], RoadController.prototype, "getNearby", null);
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], RoadController.prototype, "getAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -138,6 +147,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], RoadController.prototype, "getOne", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], RoadController.prototype, "delete", null);
+
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], RoadController.prototype, "update", null);
 exports.RoadController = RoadController = __decorate([
     (0, common_1.Controller)('api/v1/roads'),
     (0, common_1.UseFilters)(common_2.HttpExceptionFilter),

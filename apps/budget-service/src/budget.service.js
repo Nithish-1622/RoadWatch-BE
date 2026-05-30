@@ -50,7 +50,7 @@ let BudgetService = BudgetService_1 = class BudgetService {
         return savedBudget;
     }
     async updateExpenditure(id, dto) {
-        const budget = await this.budgetRepository.findOne({ where: { id } });
+        const budget = await this.budgetRepository.findOne({ where: { id: Number(id) } });
         if (!budget) {
             return null;
         }
@@ -69,7 +69,64 @@ let BudgetService = BudgetService_1 = class BudgetService {
         return savedBudget;
     }
     async findByRoad(roadId) {
-        return this.budgetRepository.find({ where: { roadId } });
+        return this.budgetRepository.find({ where: { roadId: Number(roadId) } });
+    }
+
+    // Retrieve a single budget by ID
+    async findOne(id) {
+        const budget = await this.budgetRepository.findOne({
+            where: { id: Number(id) },
+            relations: ['contractor'],
+        });
+        if (!budget) {
+            throw new common_1.NotFoundException(`Budget with ID ${id} not found`);
+        }
+        return budget;
+    }
+    // New method to retrieve all budgets
+    async findAll() {
+        return this.budgetRepository.find();
+    }
+    // Update a budget by ID (partial update)
+    async update(id, dto) {
+        const budget = await this.budgetRepository.findOne({
+            where: { id: Number(id) },
+            relations: ['contractor'],
+        });
+        if (!budget) {
+            throw new common_1.NotFoundException(`Budget with ID ${id} not found`);
+        }
+        // If contractorId is provided, look up the contractor
+        if (dto.contractorId) {
+            const contractor = await this.contractorRepository.findOne({
+                where: { id: dto.contractorId },
+            });
+            if (!contractor) {
+                throw new common_1.NotFoundException(`Contractor with ID ${dto.contractorId} not found`);
+            }
+            budget.contractor = contractor;
+        }
+        if (dto.roadId !== undefined) budget.roadId = dto.roadId;
+        if (dto.sanctionedAmount !== undefined) budget.sanctionedAmount = dto.sanctionedAmount;
+        if (dto.tenderReference !== undefined) budget.tenderReference = dto.tenderReference;
+        if (dto.sanctionDate !== undefined) budget.sanctionDate = new Date(dto.sanctionDate);
+        if (dto.releasedAmount !== undefined) budget.releasedAmount = Number(dto.releasedAmount);
+        if (dto.spentAmount !== undefined) budget.spentAmount = Number(dto.spentAmount);
+        const savedBudget = await this.budgetRepository.save(budget);
+        await this.emitBudgetUpdateEvent(savedBudget);
+        return savedBudget;
+    }
+    // Remove a budget by ID
+    async remove(id) {
+        const budget = await this.budgetRepository.findOne({
+            where: { id: Number(id) },
+            relations: ['contractor'],
+        });
+        if (!budget) {
+            throw new common_1.NotFoundException(`Budget with ID ${id} not found`);
+        }
+        await this.budgetRepository.remove(budget);
+        return { deleted: true, id: Number(id) };
     }
     async emitBudgetUpdateEvent(budget) {
         const payload = {
