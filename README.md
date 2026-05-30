@@ -12,7 +12,7 @@ Before you begin, ensure you have the following installed on your machine:
 - **Docker** and **Docker Compose**
 - **Git**
 
-## 1. Clone the Repository
+## 1. Clonee the Repository
 If you haven't already, clone the workspace to your local machine and navigate to the backend directory:
 ```bash
 cd e:\roadwatch\road_backend
