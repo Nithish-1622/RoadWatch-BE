@@ -62,6 +62,10 @@ __decorate([
     (0, typeorm_1.Column)({ name: 'assigned_authority_email', nullable: true }),
     __metadata("design:type", String)
 ], Complaint.prototype, "assignedAuthorityEmail", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'image_url', nullable: true }),
+    __metadata("design:type", String)
+], Complaint.prototype, "imageUrl", void 0);
 exports.Complaint = Complaint = __decorate([
     (0, typeorm_1.Entity)('complaints')
 ], Complaint);

@@ -13,8 +13,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationConsumer = void 0;
 const common_1 = require("@nestjs/common");
 const kafkajs_1 = require("kafkajs");
+const notification_service_1 = require("./notification.service");
 let NotificationConsumer = NotificationConsumer_1 = class NotificationConsumer {
-    constructor() {
+    constructor(notificationService) {
+        this.notificationService = notificationService;
         this.logger = new common_1.Logger(NotificationConsumer_1.name);
         const brokers = process.env.KAFKA_BROKERS ? process.env.KAFKA_BROKERS.split(',') : ['localhost:9092'];
         this.kafka = new kafkajs_1.Kafka({
@@ -58,6 +60,16 @@ let NotificationConsumer = NotificationConsumer_1 = class NotificationConsumer {
     }
     async handleComplaintCreated(payload) {
         this.logger.log(`[Notification dispatched] Dispatching SMS & Push to Citizen (${payload.citizenId}): Complaint successfully filed. ID: ${payload.complaintId}`);
+        try {
+            await this.notificationService.create({
+                userId: 0,
+                title: 'New Complaint Submitted',
+                message: `A new complaint has been submitted. Description: ${payload.description}`,
+                type: 'ALERT'
+            });
+        } catch (e) {
+            this.logger.error('Failed to create in-app notification', e);
+        }
     }
     async handleComplaintStatusUpdated(payload) {
         this.logger.log(`[Notification dispatched] Dispatching Email to Citizen (${payload.citizenId}): Pothole complaint status changed from ${payload.oldStatus} to ${payload.newStatus}. Remarks: ${payload.remarks}`);
@@ -66,6 +78,6 @@ let NotificationConsumer = NotificationConsumer_1 = class NotificationConsumer {
 exports.NotificationConsumer = NotificationConsumer;
 exports.NotificationConsumer = NotificationConsumer = NotificationConsumer_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
+    __metadata("design:paramtypes", [notification_service_1.NotificationService])
 ], NotificationConsumer);
 //# sourceMappingURL=notification.consumer.js.map

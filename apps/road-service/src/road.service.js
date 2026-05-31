@@ -46,6 +46,38 @@ let RoadService = class RoadService {
         await this.kafkaService.emitEvent('road-updates', 'RoadCreatedEvent', payload);
         return savedRoad;
     }
+    
+    async suggestRoad(name, lat, lng) {
+        const existingRoad = await this.roadRepository.createQueryBuilder('road')
+            .where('LOWER(road.name) = LOWER(:name)', { name })
+            .getOne();
+
+        if (existingRoad) {
+            return existingRoad;
+        }
+
+        const lineString = { type: 'LineString', coordinates: [[lng, lat], [lng + 0.0001, lat + 0.0001]] };
+        
+        const road = this.roadRepository.create({
+            name,
+            category: road_entity_1.RoadCategory.Panchayat,
+            geometry: lineString,
+            authorityName: 'Citizen Added',
+        });
+        
+        const savedRoad = await this.roadRepository.save(road);
+        
+        const payload = {
+            roadId: savedRoad.id,
+            name: savedRoad.name,
+            category: savedRoad.category,
+            coordinates: [{ lat, lng: lng }, { lat: lat + 0.0001, lng: lng + 0.0001 }],
+            authorityName: savedRoad.authorityName,
+        };
+        await this.kafkaService.emitEvent('road-updates', 'RoadCreatedEvent', payload);
+        
+        return savedRoad;
+    }
     // Retrieve all roads
     async findAll() {
         // Return only scalar fields to avoid geometry serialization issues

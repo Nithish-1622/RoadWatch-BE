@@ -31,6 +31,28 @@ let BudgetService = BudgetService_1 = class BudgetService {
         const contractor = this.contractorRepository.create(dto);
         return this.contractorRepository.save(contractor);
     }
+    async findAllContractors() {
+        return this.contractorRepository.find();
+    }
+    async updateContractor(id, dto) {
+        const contractor = await this.contractorRepository.findOne({ where: { id: Number(id) } });
+        if (!contractor) {
+            throw new common_1.NotFoundException(`Contractor with ID ${id} not found`);
+        }
+        if (dto.name !== undefined) contractor.name = dto.name;
+        if (dto.licenseNumber !== undefined) contractor.licenseNumber = dto.licenseNumber;
+        if (dto.email !== undefined) contractor.email = dto.email;
+        if (dto.phone !== undefined) contractor.phone = dto.phone;
+        return this.contractorRepository.save(contractor);
+    }
+    async removeContractor(id) {
+        const contractor = await this.contractorRepository.findOne({ where: { id: Number(id) } });
+        if (!contractor) {
+            throw new common_1.NotFoundException(`Contractor with ID ${id} not found`);
+        }
+        await this.contractorRepository.remove(contractor);
+        return { deleted: true, id: Number(id) };
+    }
     async createBudget(dto) {
         const contractor = await this.contractorRepository.findOne({
             where: { id: dto.contractorId },

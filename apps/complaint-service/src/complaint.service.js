@@ -20,12 +20,20 @@ const typeorm_2 = require("typeorm");
 const complaint_entity_1 = require("./complaint.entity");
 const complaint_timeline_entity_1 = require("./complaint-timeline.entity");
 const common_2 = require("@app/common");
+const cloudinary = require("cloudinary").v2;
+
 let ComplaintService = ComplaintService_1 = class ComplaintService {
     constructor(complaintRepository, timelineRepository, kafkaService) {
         this.complaintRepository = complaintRepository;
         this.timelineRepository = timelineRepository;
         this.kafkaService = kafkaService;
         this.logger = new common_1.Logger(ComplaintService_1.name);
+        
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
     }
     async create(citizenId, dto) {
         const point = {
@@ -34,6 +42,23 @@ let ComplaintService = ComplaintService_1 = class ComplaintService {
         };
         const slaDeadline = new Date();
         slaDeadline.setDate(slaDeadline.getDate() + 14);
+        let imageUrl = null;
+        if (dto.imageBase64) {
+            if (!process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY === 'your_api_key') {
+                this.logger.warn('Cloudinary API key is missing or dummy. Using a dummy placeholder image.');
+                imageUrl = 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg';
+            } else {
+                try {
+                    const uploadResponse = await cloudinary.uploader.upload(dto.imageBase64, {
+                        folder: 'roadwatch_complaints',
+                    });
+                    imageUrl = uploadResponse.secure_url;
+                } catch (error) {
+                    this.logger.error('Cloudinary upload failed:', error);
+                }
+            }
+        }
+
         const complaint = this.complaintRepository.create({
             id: dto.id,
             citizenId,
@@ -42,6 +67,7 @@ let ComplaintService = ComplaintService_1 = class ComplaintService {
             roadId: dto.roadId,
             slaDeadline,
             status: complaint_entity_1.ComplaintStatus.SUBMITTED,
+            imageUrl: imageUrl,
         });
         const savedComplaint = await this.complaintRepository.save(complaint);
         await this.logTimeline(savedComplaint, complaint_entity_1.ComplaintStatus.SUBMITTED, 'Complaint registered.', citizenId, 'Citizen');
@@ -52,6 +78,7 @@ let ComplaintService = ComplaintService_1 = class ComplaintService {
             longitude: dto.longitude,
             description: savedComplaint.description,
             documentIds: dto.documentIds,
+            imageUrl: savedComplaint.imageUrl,
         };
         await this.kafkaService.emitEvent('complaints', 'ComplaintCreatedEvent', payload, citizenId);
         return savedComplaint;

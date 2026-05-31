@@ -51,8 +51,12 @@ __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsUUID)(undefined, { each: true }),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Array)
 ], CreateComplaintDto.prototype, "documentIds", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateComplaintDto.prototype, "imageBase64", void 0);
 class BulkSyncDto {
 }
 __decorate([
@@ -115,6 +119,7 @@ let ComplaintController = class ComplaintController {
             description: dto.description,
             roadId: dto.roadId,
             documentIds: dto.documentIds,
+            imageBase64: dto.imageBase64,
         });
     }
     async sync(dto, userId) {
@@ -152,6 +157,8 @@ let ComplaintController = class ComplaintController {
 exports.ComplaintController = ComplaintController;
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(common_2.RolesGuard),
+    (0, common_2.Roles)('CITIZEN', 'GOVERNMENT'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Headers)('x-user-id')),
     __metadata("design:type", Function),
@@ -169,7 +176,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, common_1.UseGuards)(common_2.RolesGuard),
-    (0, common_2.Roles)('admin', 'government officer'),
+    (0, common_2.Roles)('GOVERNMENT', 'ADMIN'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Headers)('x-user-id')),

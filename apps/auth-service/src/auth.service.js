@@ -24,7 +24,7 @@ let AuthService = class AuthService {
         this.logger = new common_1.Logger(AuthService.name);
     }
 
-    async register(email, password, name) {
+    async register(email, password, name, role = 'CITIZEN') {
         const existingUser = await this.userRepository.findOne({ where: { email } });
         if (existingUser) {
             throw new common_1.ConflictException('Email already registered');
@@ -34,7 +34,8 @@ let AuthService = class AuthService {
         const user = this.userRepository.create({
             email,
             password: hashedPassword,
-            name
+            name,
+            role
         });
         
         await this.userRepository.save(user);
@@ -42,7 +43,8 @@ let AuthService = class AuthService {
         return {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            role: user.role
         };
     }
 
@@ -57,14 +59,18 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid email or password');
         }
 
-        const payload = { sub: user.id, email: user.email };
+        const payload = { sub: user.id, email: user.email, role: user.role };
         const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
         const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
         user.refreshToken = refreshToken;
         await this.userRepository.save(user);
 
-        return { accessToken, refreshToken };
+        return { 
+            accessToken, 
+            refreshToken,
+            user: { id: user.id, email: user.email, name: user.name, role: user.role }
+        };
     }
 
     async verifyTokenAndGetUser(token) {
@@ -77,7 +83,8 @@ let AuthService = class AuthService {
             return {
                 id: user.id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                role: user.role
             };
         } catch (err) {
             throw new common_1.UnauthorizedException('Invalid or expired token');
@@ -93,7 +100,7 @@ let AuthService = class AuthService {
                 throw new common_1.UnauthorizedException('Invalid refresh token');
             }
 
-            const payload = { sub: user.id, email: user.email };
+            const payload = { sub: user.id, email: user.email, role: user.role };
             const newAccessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
             const newRefreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 

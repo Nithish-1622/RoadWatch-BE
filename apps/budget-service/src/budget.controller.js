@@ -35,6 +35,28 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateContractorDto.prototype, "phone", void 0);
+class UpdateContractorDto {
+}
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateContractorDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateContractorDto.prototype, "licenseNumber", void 0);
+__decorate([
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateContractorDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateContractorDto.prototype, "phone", void 0);
 class CreateBudgetDto {
 }
 __decorate([
@@ -119,6 +141,15 @@ let BudgetController = class BudgetController {
     async createContractor(dto) {
         return this.budgetService.createContractor(dto);
     }
+    async findAllContractors() {
+        return this.budgetService.findAllContractors();
+    }
+    async updateContractor(id, dto) {
+        return this.budgetService.updateContractor(id, dto);
+    }
+    async removeContractor(id) {
+        return this.budgetService.removeContractor(id);
+    }
     async createBudget(dto) {
         return this.budgetService.createBudget({
             ...dto,
@@ -157,6 +188,27 @@ __decorate([
     __metadata("design:paramtypes", [CreateContractorDto]),
     __metadata("design:returntype", Promise)
 ], BudgetController.prototype, "createContractor", null);
+__decorate([
+    (0, common_1.Get)('contractors'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "findAllContractors", null);
+__decorate([
+    (0, common_1.Put)('contractors/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, UpdateContractorDto]),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "updateContractor", null);
+__decorate([
+    (0, common_1.Delete)('contractors/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], BudgetController.prototype, "removeContractor", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

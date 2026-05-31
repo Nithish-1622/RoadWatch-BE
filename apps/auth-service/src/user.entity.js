@@ -33,6 +33,11 @@ __decorate([
 ], User.prototype, "name", void 0);
 
 __decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'CITIZEN' }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+
+__decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "refreshToken", void 0);

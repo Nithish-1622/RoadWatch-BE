@@ -89,12 +89,31 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateRoadDto.prototype, "authorityEmail", void 0);
+
+class SuggestRoadDto {
+}
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], SuggestRoadDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], SuggestRoadDto.prototype, "lat", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], SuggestRoadDto.prototype, "lng", void 0);
 let RoadController = class RoadController {
     constructor(roadService) {
         this.roadService = roadService;
     }
     async create(createDto) {
         return this.roadService.create(createDto);
+    }
+    
+    async suggest(suggestDto) {
+        return this.roadService.suggestRoad(suggestDto.name, suggestDto.lat, suggestDto.lng);
     }
     async getNearby(lat, lng, radius) {
         const latitude = parseFloat(lat);
@@ -118,13 +137,23 @@ let RoadController = class RoadController {
 exports.RoadController = RoadController;
 __decorate([
     (0, common_1.Post)(),
-    // (0, common_1.UseGuards)(common_2.RolesGuard),
-    // (0, common_2.Roles)('admin'),
+    (0, common_1.UseGuards)(common_2.RolesGuard),
+    (0, common_2.Roles)('GOVERNMENT'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [CreateRoadDto]),
     __metadata("design:returntype", Promise)
 ], RoadController.prototype, "create", null);
+
+__decorate([
+    (0, common_1.Post)('suggest'),
+    (0, common_1.UseGuards)(common_2.RolesGuard),
+    (0, common_2.Roles)('CITIZEN', 'GOVERNMENT'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [SuggestRoadDto]),
+    __metadata("design:returntype", Promise)
+], RoadController.prototype, "suggest", null);
 __decorate([
     (0, common_1.Get)('nearby'),
     __param(0, (0, common_1.Query)('lat')),
@@ -149,6 +178,8 @@ __decorate([
 ], RoadController.prototype, "getOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(common_2.RolesGuard),
+    (0, common_2.Roles)('GOVERNMENT'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -157,6 +188,8 @@ __decorate([
 
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(common_2.RolesGuard),
+    (0, common_2.Roles)('GOVERNMENT'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

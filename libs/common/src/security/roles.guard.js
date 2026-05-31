@@ -26,11 +26,22 @@ let RolesGuard = class RolesGuard {
             return true;
         }
         const request = context.switchToHttp().getRequest();
-        const userRole = request.headers['x-user-role'];
-        if (!userRole) {
+        const authHeader = request.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return false;
         }
-        return requiredRoles.map(role => role.toLowerCase()).includes(userRole.toLowerCase());
+        const token = authHeader.split(' ')[1];
+        try {
+            const jwt = require('jsonwebtoken');
+            const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
+            const decoded = jwt.verify(token, JWT_SECRET);
+            if (!decoded || !decoded.role) {
+                return false;
+            }
+            return requiredRoles.map(role => role.toLowerCase()).includes(decoded.role.toLowerCase());
+        } catch (err) {
+            return false;
+        }
     }
 };
 exports.RolesGuard = RolesGuard;

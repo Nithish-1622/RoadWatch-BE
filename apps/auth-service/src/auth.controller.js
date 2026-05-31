@@ -35,6 +35,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "role", void 0);
 
 class LoginDto {
 }
@@ -64,7 +69,7 @@ let AuthController = class AuthController {
     }
 
     async register(dto) {
-        return this.authService.register(dto.email, dto.password, dto.name);
+        return this.authService.register(dto.email, dto.password, dto.name, dto.role);
     }
 
     async login(dto) {

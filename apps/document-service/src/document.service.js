@@ -17,13 +17,43 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const document_metadata_entity_1 = require("./document-metadata.entity");
+const cloudinary = require("cloudinary").v2;
 
 let DocumentService = class DocumentService {
     constructor(documentRepository) {
         this.documentRepository = documentRepository;
+        this.logger = new common_1.Logger(DocumentService.name);
+        
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        });
     }
     async create(dto) {
-        const doc = this.documentRepository.create(dto);
+        let fileUrl = dto.fileUrl;
+        
+        if (dto.fileBase64) {
+            if (!process.env.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY === 'your_api_key') {
+                this.logger.warn('Cloudinary API key is missing or dummy. Using a dummy placeholder PDF.');
+                fileUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+            } else {
+                try {
+                    const uploadResponse = await cloudinary.uploader.upload(dto.fileBase64, {
+                        folder: 'roadwatch_documents',
+                        resource_type: 'raw',
+                    });
+                    fileUrl = uploadResponse.secure_url;
+                } catch (error) {
+                    this.logger.error('Cloudinary upload failed:', error);
+                }
+            }
+        }
+        
+        const docData = { ...dto, fileUrl };
+        delete docData.fileBase64;
+        
+        const doc = this.documentRepository.create(docData);
         return this.documentRepository.save(doc);
     }
     async findAll() {
