@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+postgres:
+  user: postgres
+  password: "changeme"
+  database: postgres
+  port: 5432
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+service:
+  type: ClusterIP
+  port: 5432
+
+migration:
+  enabled: true
+  # Image used to run psql; defaults to Postgres image which includes psql client
+  image: postgres:15

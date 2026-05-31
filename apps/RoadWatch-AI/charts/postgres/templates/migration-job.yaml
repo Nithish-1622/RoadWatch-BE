@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "postgres.fullname" . }}-migrations
+  labels:
+    app: {{ include "postgres.name" . }}
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: migrate
+          image: postgres:15
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres.fullname" . }}-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres.fullname" . }}-secret
+                  key: POSTGRES_USER
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres.fullname" . }}-secret
+                  key: POSTGRES_DB
+          command:
+            - sh
+            - -c
+            - |
+              echo "Running migrations..."
+              psql -h {{ include "postgres.fullname" . }} -U "$PGUSER" -d "$PGDATABASE" -c "CREATE SCHEMA IF NOT EXISTS analytics; CREATE TABLE IF NOT EXISTS analytics.anomalies (id SERIAL PRIMARY KEY, request_id TEXT, timestamp DOUBLE PRECISION, payload JSONB);"
+      # Run migrations only once; helm hook could be used in prod.
+  backoffLimit: 4

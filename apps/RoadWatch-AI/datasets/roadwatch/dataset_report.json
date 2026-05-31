@@ -1,0 +1,14 @@
+{
+  "total_images": 3785,
+  "train_images": 3785,
+  "val_images": 0,
+  "test_images": 0,
+  "class_distribution": {
+    "pothole": 3187,
+    "surface_wear": 1148,
+    "crack": 3868
+  },
+  "source_distribution": {
+    "RDD2022": 8203
+  }
+}

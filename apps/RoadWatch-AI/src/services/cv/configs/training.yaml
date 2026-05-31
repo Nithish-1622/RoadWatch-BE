@@ -1,0 +1,13 @@
+names:
+  - pothole
+  - crack
+  - waterlogging
+  - surface wear
+  - missing road marking
+  - broken signboard
+nc: 6
+epochs: 20
+batch: 16
+imgsz: 640
+project: models/cv
+name: yolo_roadwatch_default

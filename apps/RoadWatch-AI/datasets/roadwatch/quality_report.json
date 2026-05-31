@@ -1,0 +1,21 @@
+{
+  "missing_annotations": [],
+  "corrupt_images": [],
+  "duplicate_images": [],
+  "invalid_bounding_boxes": [],
+  "imbalanced_classes": [
+    {
+      "class": "waterlogging",
+      "count": 0
+    },
+    {
+      "class": "missing_road_marking",
+      "count": 0
+    },
+    {
+      "class": "broken_signboard",
+      "count": 0
+    }
+  ],
+  "training_ready": false
+}

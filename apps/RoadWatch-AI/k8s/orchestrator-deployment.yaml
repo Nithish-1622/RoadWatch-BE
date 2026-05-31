@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roadwatch-ai-orchestrator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: roadwatch-ai-orchestrator
+  template:
+    metadata:
+      labels:
+        app: roadwatch-ai-orchestrator
+    spec:
+      containers:
+      - name: orchestrator
+        image: roadwatch-ai/orchestrator:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roadwatch-ai-orchestrator
+spec:
+  type: ClusterIP
+  selector:
+    app: roadwatch-ai-orchestrator
+  ports:
+  - port: 80
+    targetPort: 8000

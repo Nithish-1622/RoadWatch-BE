@@ -1,0 +1,7 @@
+names:
+- pothole
+- crack
+nc: 2
+path: tmp_coco
+train: images/train
+val: images/val

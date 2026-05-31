@@ -1,0 +1,12 @@
+path: datasets/roadwatch
+train: images/train
+val: images/val
+test: images/test
+nc: 6
+names:
+  - pothole
+  - crack
+  - surface_wear
+  - waterlogging
+  - missing_road_marking
+  - broken_signboard

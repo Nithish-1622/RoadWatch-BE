@@ -1,0 +1,34 @@
+roadwatch_classes:
+  - pothole
+  - crack
+  - surface_wear
+  - waterlogging
+  - missing_road_marking
+  - broken_signboard
+class_mapping:
+  RDD2022:
+    d00: crack
+    d01: crack
+    d10: crack
+    d11: crack
+    d20: crack
+    d40: pothole
+    d43: surface_wear
+    d44: surface_wear
+  FloodNet:
+    water: waterlogging
+    flood: waterlogging
+    flooded: waterlogging
+    waterlogging: waterlogging
+    standing_water: waterlogging
+  Mapillary:
+    traffic sign: broken_signboard
+    traffic_sign: broken_signboard
+    sign: broken_signboard
+    signboard: broken_signboard
+    damaged sign: broken_signboard
+    broken signboard: broken_signboard
+    missing sign: broken_signboard
+    road marking: missing_road_marking
+    lane marking: missing_road_marking
+    marking: missing_road_marking
