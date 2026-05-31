@@ -41,3 +41,9 @@ example
 # generated native folders
 /ios
 /android
+
+.claude/
+.vscode/
+*.md
+!README.md
+!Readme.md
